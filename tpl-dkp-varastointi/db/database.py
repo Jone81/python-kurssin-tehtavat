@@ -1,52 +1,50 @@
-#TODO: Import sqlite3
+import sqlite3
 from pathlib import Path
 
 DB_PATH = Path("sqlite_books.db")
 
-def create_db():
-    """
-    TODO: Implement a function that:
-      - Connects to the database (sqlite3.connect)
-      - Creates a table 'books' with columns:
-          id (INTEGER PRIMARY KEY AUTOINCREMENT),
-          title (TEXT, not null),
-          author (TEXT, not null),
-          pages (INTEGER, not null)
-      - Closes the connection
 
-      - Remove the "pass", it's just to avoid syntax errors for now
-    """
-    pass
+def create_db():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS books (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL UNIQUE,
+            author TEXT NOT NULL,
+            pages INTEGER NOT NULL
+        )
+        """
+    )
+    conn.commit()
+    conn.close()
 
 
 def add_data(books_dict):
-    """
-    TODO: Implement a function that:
-      - Connects to the database
-      - Iterates through the dictionary {title: {author, pages}}
-      - Inserts each book into the 'books' table
-      - Commits changes and closes the connection
-    Example insert (doesn't handle duplicates, just for reference):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    for title, info in books_dict.items():
         cursor.execute(
-            "INSERT INTO books (title, author, pages) VALUES (?, ?, ?)",
-            (title, info["author"], info["pages"])
+            "INSERT OR IGNORE INTO books (title, author, pages) VALUES (?, ?, ?)",
+            (title, info["author"], info["pages"]),
         )
+    conn.commit()
+    conn.close()
 
-      - Remove the "pass", it's just to avoid syntax errors for now
-    """
-    pass
 
 def query_data(limit):
-    """
-    TODO: Implement a function that:
-      - Connects to the database
-      - Executes a query to select 'title, author, pages'
-        ordered by 'pages' descending
-      - Limits the result set to the given 'limit'
-      - Closes the connection
-
-      - Returns the rows
-      
-      - Remove the "pass", it's just to avoid syntax errors for now
-    """
-    pass
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT title, author, pages
+        FROM books
+        ORDER BY pages DESC
+        LIMIT ?
+        """,
+        (limit,),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return rows

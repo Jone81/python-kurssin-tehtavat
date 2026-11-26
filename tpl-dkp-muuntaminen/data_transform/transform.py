@@ -1,61 +1,39 @@
 import pandas as pd
 
 def clean_strings(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    TODO: Siivoa tekstisarakkeet kuten 'name' ja 'capital'.
-
-    Ohjeet:
-    - Käytä pandasin `.str`-metodeja
-    - Poista ympäröivät välilyönnit
-    - Muuta title-caseen (iso alkukirjain aina)
-
-    Palauta siivottu DataFrame.
-    """
-
+    """Siivoa tekstisarakkeet poistamalla välilyönnit ja muuttamalla title-caseen."""
+    df = df.copy()
+    for col in ["name", "capital"]:
+        if col in df.columns:
+            df[col] = df[col].str.strip().str.title()
     return df
 
 
-def handle_missing(df):
-    """
-    TODO: Käsittele puuttuvat arvot.
-
-    Ohjeet:
-    - Lisää funktioon type hint, joka kertoo, että funktio ottaa syötteenä on DataFramen ja myös palautettaa DataFramen
-    - Tee df-kopio, jotta funktio ei muokkaa alkuperäistä DataFramea
-    - Korvaa "N/A" ja vastaavat merkeillä `pd.NA`
-    - Tulosta kuinka monta puuttuvaa arvoa sarakkeissa on
-
-    Palauta DataFrame, jossa puuttuvat arvot käsitelty.
-    """
-
+def handle_missing(df: pd.DataFrame) -> pd.DataFrame:
+    """Korvaa puuttuvia arvoja kuvaavat merkkijonot pd.NA:lla, tulostaa määrät ja poistaa puuttuvat rivit."""
+    df = df.copy()
+    missing_values = ["N/A", "n/a", "NA", "na", "", "None", "null"]
+    df = df.replace(missing_values, pd.NA)
+    print("Missing values per column:")
+    print(df.isna().sum())
+    df = df.dropna()
     return df
 
 
-def remove_duplicates(df):
-    """
-    # TODO: Poista duplikaatit.
-
-    Ohjeet:
-    - Lisää funktioon type hint, joka kertoo, että funktio ottaa syötteenä on DataFramen ja myös palautettaa DataFramen
-    - Tee df-kopio, jotta funktio ei muokkaa alkuperäistä DataFramea
-    - Poista päällekkäiset rivit perustuen 'name'-sarakkeeseen
-    - Palauta puhdistettu DataFrame
-    """
-
+def remove_duplicates(df: pd.DataFrame) -> pd.DataFrame:
+    """Poista päällekkäiset rivit 'name'-sarakkeen perusteella."""
+    df = df.copy()
+    df = df.drop_duplicates(subset=["name"])
     return df
 
 
-def fix_types_and_sort(df):
-    """
-    TODO: Korjaa sarakkeiden tyypit ja järjestä.
-
-    Ohjeet:
-    - Lisää funktioon type hint, joka kertoo, että funktio ottaa syötteenä on DataFramen ja myös palautettaa DataFramen
-    - Tee df-kopio, jotta funktio ei muokkaa alkuperäistä DataFramea
-    - Muunna numeromuotoiset sarakkeet numeerisiksi
-    - Järjestä DataFrame nimen mukaan
-    """
-
+def fix_types_and_sort(df: pd.DataFrame) -> pd.DataFrame:
+    """Muunna numeromuotoiset sarakkeet numeerisiksi ja järjestä nimen mukaan."""
+    df = df.copy()
+    if "population" in df.columns:
+        df["population"] = pd.to_numeric(df["population"], errors="coerce")
+    if "name" in df.columns:
+        df = df.sort_values(by="name").reset_index(drop=True)
     return df
 
 

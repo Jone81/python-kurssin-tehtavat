@@ -1,5 +1,6 @@
-#TODO: import pandas
+import pandas as pd
 from db.database import create_db, add_data, query_data
+
 
 def main():
 
@@ -16,12 +17,12 @@ def main():
         "Pride and Prejudice": {"author": "Jane Austen", "pages": 279}
     }
 
-    # TODO: 1. Call create_db() to initialize the database
+    create_db()
+    add_data(books)
 
-    # TODO: 2. Call add_data() function with books as a parameter to insert the books into the database
-
-    # TODO: 3. Call query_data() to fetch 5 first books in to a dataframe with columns: title, author, pages
-    # print the dataframe to the console
+    rows = query_data(5)
+    df = pd.DataFrame(rows, columns=["title", "author", "pages"])
+    print(df)
 
 
 if __name__ == "__main__":
